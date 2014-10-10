@@ -25,13 +25,91 @@
 		}
 	</style>
 	<script>
-		(function($){
-			$.fn.equalizer = function(){
-				return this.each(function(){
+	(function($){
+		$.fn.equalizer = function(options){
+			$.extend($.fn.equalizer.settings, $.fn.equalizer.defaults);
+			$.extend($.fn.equalizer.settings, options);
+			return this.each(function(){
+				$.extend($.fn.equalizer.settings, {selector: $(this)});
+				$.fn.equalizer.setEqualizer($.fn.equalizer.settings);
+					$.fn.equalizer.readyEqualizer($.fn.equalizer.settings);
+					$.fn.equalizer.resetEqualizer($.fn.equalizer.settings);
+				setTimeout(function() {console.log(1);
+				}, 1000);
+			});
+		};
+		$.fn.equalizer.settings = {};
+		$.fn.equalizer.defaults = {
+			timeout: 1000,
+			colWidth: 1
+		};
+		$.fn.equalizer.setEqualizer = function(settings){
+			settings.selector.css({
+				verticalAlign: 'bottom',
+				lineHeight: settings.selector.height() + 'px'
+			});
+			var colQuantity = Math.ceil(settings.selector.width()/settings.colWidth);
+			var cols = new Array(colQuantity);
+			for (var i = 0; i < cols.length; i++) {
+				var span = $('<span/>').appendTo(settings.selector);
+				span.css({
+					verticalAlign: 'bottom',
+					display: 'inline-block',
 
+					fontSize: 0,
+					lineHeight: 0,
+
+					width: settings.colWidth,
+					background: 'pink',
+					borderTop: '2px solid red'
 				});
-			}	
-		})
+			}
+		}
+		$.fn.equalizer.resetEqualizer = function(settings){
+			console.log('1')
+			// $.extend($.fn.equalizer.settings);
+			var equ = settings.selector;
+			var spans = equ.find('span');
+			var spansArray = jQuery.makeArray(spans);
+			var length = spansArray.length;
+			var randomArray = [];
+			spans.animate(
+				{height: equ.height()/2},
+				settings.timeout,
+				'linear'
+			);
+			for(var i = 0; i < length; i++)
+			{
+				randomArray[i] = Math.round(equ.height() * Math.random());
+			}
+			spans.each(function (i) {
+				$(this).animate(
+					{height: randomArray[i]},
+					10*Math.random(),
+					'swing'
+					);
+				});
+			//window.setTimeout(function () { myFunc() }, 300);
+		};
+		$.fn.equalizer.runEqualizer = function(settings){
+		};
+		$.fn.equalizer.readyEqualizer = function(settings){
+			// var start = new Date();
+			var spans = settings.selector.find('span');
+			// var end = new Date();
+			// console.log(end.valueOf() - start.valueOf());
+			spans.each(function (i) {
+				var colHeight = Math.round(settings.selector.height() * Math.random());
+				$(this).height(colHeight);
+			});
+		};
+	}(jQuery));
+		$(document).ready(function(){
+			$('#eq .equalizer').equalizer({
+				timeout: 1000,
+				colWidth: 2
+			});
+		});
 		function setEqualizer(selector, timeout, colWidth) {
 			if (!colWidth) {
 				colWidth = 1;
@@ -122,6 +200,10 @@
 </head>
 <body>
 	<h1>Equalizers</h1>
+	<div id="eq" class="equalizer-wrapper">
+		<h2>Zero</h2>
+		<div class="equalizer big"></div>
+	</div>
 	<div id="eq_1" class="equalizer-wrapper">
 		<h2>First</h2>
 		<div class="equalizer small"></div>
