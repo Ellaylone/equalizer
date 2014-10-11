@@ -5,32 +5,32 @@
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script type="text/javascript" src="equalizer.js"></script>
 	<style>
-		.equalizer-wrapper {
-			float:left; margin: 0 20px 20px 0;
-		}
-		.equalizer {
-			overflow: hidden;
-			border:1px solid #ddd;
-		}
-		.equalizer.small {
-			width: 100px;
-			height: 100px;
-		}
-		.equalizer.normal {
-			width: 200px;
-			height: 200px;
-		}
-		.equalizer.big {
-			width: 300px;
-			height: 300px;
-		}
+	.equalizer-wrapper {
+		float:left; margin: 0 20px 20px 0;
+	}
+	.equalizer {
+		overflow: hidden;
+		border:1px solid #ddd;
+	}
+	.equalizer.small {
+		width: 100px;
+		height: 100px;
+	}
+	.equalizer.normal {
+		width: 200px;
+		height: 200px;
+	}
+	.equalizer.big {
+		width: 300px;
+		height: 300px;
+	}
 	</style>
 	<script>
-		$(document).ready(function(){
-			$('#eq_1 .equalizer').equalizer({timeout: 5000, colWidth: 2});
-			$('#eq_2 .equalizer').equalizer({timeout: 5000, colWidth: 2});
-			$('#eq_3 .equalizer').equalizer({timeout: 5000, colWidth: 2});
-		});
+	$(document).ready(function(){
+		$('#eq_1 .equalizer').equalizer({timeout: 1000, colWidth: 2});
+		$('#eq_2 .equalizer').equalizer({timeout: 1000, colWidth: 2});
+		$('#eq_3 .equalizer').equalizer({timeout: 1000, colWidth: 2});
+	});
 	</script>
 </head>
 <body>

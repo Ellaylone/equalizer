@@ -1,24 +1,22 @@
 (function($){
-	//TODO сделать нормальный runEqualizer
-	//TODO чистка и рефакторинг
-	//TODO при инициализации устанавливать эквалайзер в центральное положение
 	$.fn.equalizer = function(options){
 		return this.each(function(){
 			var settings = $.extend({}, $.fn.equalizer.defaults, options);
-			$.extend(settings, {selector: $(this)});
+			var selector = $(this);
 			$.extend(settings, {
-				colQuantity: Math.ceil(settings.selector.width()/settings.colWidth)
+				selector: selector,
+				colQuantity: Math.ceil(selector.width()/settings.colWidth),
+				middlePosition: selector.height()/2
 			});
 			$.fn.equalizer.setEqualizer(settings);
-			// $.fn.equalizer.readyEqualizer(settings);
 			$.fn.equalizer.runEqualizer(settings);
-			//$.fn.equalizer.resetEqualizer(settings);
 		});
 	};
 	$.fn.equalizer.defaults = {
 		timeout: 1000,
 		colWidth: 1,
 	};
+	//NOTE подготавливаем блок, вешаем стили, создаем колонки эквалайзера
 	$.fn.equalizer.setEqualizer = function(settings){
 		var spans = document.createDocumentFragment(), 
 		length = settings.colQuantity;
@@ -35,6 +33,7 @@
 				lineHeight: 0,
 
 				width: settings.colWidth,
+				height: settings.middlePosition,
 				background: 'pink',
 				borderTop: '2px solid red'
 			});
@@ -42,69 +41,34 @@
 		}
 		settings.selector.append(spans);
 	}
+	//NOTE устанавливает эквалайзер в случайное положение
 	$.fn.equalizer.randomiseCols = function(settings){
-		var spans = settings.selector.find('span');
-		var length = settings.colQuantity;
+		var spans = $(settings.selector.children()),
+		length = settings.colQuantity,
+		preloadNext = function () {(!--length) && $.fn.equalizer.evenCols(settings);};
 		spans.stop(true, true);
 		spans.each(function () {
-				$(this).animate(
-					{height: Math.round(settings.selector.height() * Math.random())},
-					settings.timeout,
-					'linear',
-					function(){
-						(!--length) && $.fn.equalizer.evenCols(settings);
-					}
+			$(this).animate(
+				{height: Math.round(settings.selector.height() * Math.random())},
+				settings.timeout,
+				preloadNext
 				);
-			});
-		};	
-
+		});
+		
+	};
+	//NOTE устанавливает эквалайзер в центральное положение
 	$.fn.equalizer.evenCols = function(settings){
-		var spans = settings.selector.find('span');
-		var length = settings.colQuantity;
+		var spans = $(settings.selector.children()),
+		length = settings.colQuantity,
+		preloadNext = function () {(!--length) && $.fn.equalizer.randomiseCols(settings);};
 		spans.stop(true, true);
 		spans.animate(
-					{height: settings.selector.height()/2},
-					settings.timeout,
-					'linear',
-					function(){
-						(!--length) && $.fn.equalizer.randomiseCols(settings);
-					}
-				);
-		};	
-	$.fn.equalizer.resetEqualizer = function(settings){
-		var equ = settings.selector;
-		var spans = equ.find('span');
-		var spansArray = jQuery.makeArray(spans);
-		var length = settings.colQuantity;
-		var randomArray = [];
-		spans.each(function(){
-			switch(settings.type){
-				case 'rise':
-					var colHeight = Math.round(settings.selector.height() * Math.random());
-				break;
-				case 'drop':
-				default:
-					var colHeight = settings.selector.height() / 2;
-				break;
-			}
-			$(this).animate(
-				{height: colHeight},
-				settings.timeout,
-				'linear'
-			)
-		});
-		for(var i = 0; i < length; i++)
-		{
-			randomArray[i] = Math.round(equ.height() * Math.random());
-		}
-		spans.each(function (i) {
-			$(this).animate(
-				{height: randomArray[i]},
-				10*Math.random(),
-				'swing'
-				);
-		});
+			{height: settings.selector.height()/2},
+			settings.timeout,
+			preloadNext
+			);
 	};
+	//NOTE старт эквалайзера
 	$.fn.equalizer.runEqualizer = function(settings){
 		$.fn.equalizer.randomiseCols(settings);
 	};
