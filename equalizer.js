@@ -1,7 +1,7 @@
 (function($){
-	//TODO синхронная работа эквалайзеров
-	//TODO анимация роста
 	//TODO сделать нормальный runEqualizer
+	//TODO чистка и рефакторинг
+	//TODO при инициализации устанавливать эквалайзер в центральное положение
 	$.fn.equalizer = function(options){
 		return this.each(function(){
 			var settings = $.extend({}, $.fn.equalizer.defaults, options);
@@ -9,30 +9,25 @@
 			$.extend(settings, {
 				colQuantity: Math.ceil(settings.selector.width()/settings.colWidth)
 			});
-			// var start = new Date();
-			// var end = new Date();
-			// console.log(end.valueOf() - start.valueOf());
 			$.fn.equalizer.setEqualizer(settings);
+			// $.fn.equalizer.readyEqualizer(settings);
 			$.fn.equalizer.runEqualizer(settings);
-			setInterval(function() {
-				$.fn.equalizer.resetEqualizer(settings);
-			}, 1000);
+			//$.fn.equalizer.resetEqualizer(settings);
 		});
 	};
 	$.fn.equalizer.defaults = {
 		timeout: 1000,
 		colWidth: 1,
-		type: 'drop' // 'rise'
 	};
 	$.fn.equalizer.setEqualizer = function(settings){
+		var spans = document.createDocumentFragment(), 
+		length = settings.colQuantity;
 		settings.selector.css({
 			verticalAlign: 'bottom',
 			lineHeight: settings.selector.height() + 'px'
 		});
-		var cols = new Array(settings.colQuantity);
-		for (var i = 0; i < cols.length; i++) {
-			var span = $('<span/>').appendTo(settings.selector);
-			span.css({
+		while(length--){
+			var span = $('<span/>').css({
 				verticalAlign: 'bottom',
 				display: 'inline-block',
 
@@ -43,8 +38,39 @@
 				background: 'pink',
 				borderTop: '2px solid red'
 			});
+			span.appendTo(spans);
 		}
+		settings.selector.append(spans);
 	}
+	$.fn.equalizer.randomiseCols = function(settings){
+		var spans = settings.selector.find('span');
+		var length = settings.colQuantity;
+		spans.stop(true, true);
+		spans.each(function () {
+				$(this).animate(
+					{height: Math.round(settings.selector.height() * Math.random())},
+					settings.timeout,
+					'linear',
+					function(){
+						(!--length) && $.fn.equalizer.evenCols(settings);
+					}
+				);
+			});
+		};	
+
+	$.fn.equalizer.evenCols = function(settings){
+		var spans = settings.selector.find('span');
+		var length = settings.colQuantity;
+		spans.stop(true, true);
+		spans.animate(
+					{height: settings.selector.height()/2},
+					settings.timeout,
+					'linear',
+					function(){
+						(!--length) && $.fn.equalizer.randomiseCols(settings);
+					}
+				);
+		};	
 	$.fn.equalizer.resetEqualizer = function(settings){
 		var equ = settings.selector;
 		var spans = equ.find('span');
@@ -80,18 +106,6 @@
 		});
 	};
 	$.fn.equalizer.runEqualizer = function(settings){
-		var spans = settings.selector.find('span');
-		spans.each(function (i) {
-			switch(settings.type){
-				case 'rise':
-					var colHeight = settings.selector.height() / 2;
-				break;
-				case 'drop':
-				default:
-					var colHeight = Math.round(settings.selector.height() * Math.random());
-				break;
-			}
-			$(this).height(colHeight);
-		});
+		$.fn.equalizer.randomiseCols(settings);
 	};
 }(jQuery));
